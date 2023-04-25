@@ -1,9 +1,7 @@
-import path from 'path';
 import express, { Response } from 'express';
 import mongoose from 'mongoose';
 import { IRequest } from './types/type';
-import userRouter from './routes/users';
-import cardsRouter from './routes/cards';
+import routes from './routes/index';
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -19,10 +17,7 @@ app.use((req: IRequest, res: Response, next) => {
   next();
 });
 
-app.use('/users', userRouter);
-app.use('/cards', cardsRouter);
-
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(routes);
 
 app.listen(PORT, () => {
   console.log(`App is listening on port ${PORT}`);
