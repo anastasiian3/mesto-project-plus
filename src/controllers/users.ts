@@ -41,7 +41,7 @@ export const createUser = (req: Request, res: Response) => {
   User.create({ name, about, avatar })
     .then((user) => res.status(CREATED_SUCCESS).send({ data: user }))
     .catch((error) => {
-      if (error instanceof mongoose.Error.CastError) {
+      if (error instanceof mongoose.Error && error.name === 'ValidationError') {
         return res
           .status(VALIDATION_ERROR)
           .send({ message: 'Data is not correct' });
@@ -69,7 +69,7 @@ export const updateUser = (req: IRequest, res: Response) => {
       return res.status(REQUEST_SUCCESS).send({ data: user });
     })
     .catch((error) => {
-      if (error instanceof mongoose.Error.CastError) {
+      if (error instanceof mongoose.Error && error.name === 'ValidationError') {
         return res
           .status(VALIDATION_ERROR)
           .send({ message: 'Data is not correct' });
@@ -97,7 +97,7 @@ export const updateAvatar = (req: IRequest, res: Response) => {
       return res.status(REQUEST_SUCCESS).send({ data: user });
     })
     .catch((error) => {
-      if (error instanceof mongoose.Error.CastError) {
+      if (error instanceof mongoose.Error && error.name === 'ValidationError') {
         return res
           .status(VALIDATION_ERROR)
           .send({ message: 'Data is not correct' });
