@@ -13,7 +13,7 @@ import {
 
 export const getCards = async (req: Request, res: Response) => {
   try {
-    const cards = await Card.find({});
+    const cards = await Card.find({}).populate('owner');
     return res.status(REQUEST_SUCCESS).send(cards);
   } catch (error) {
     return res.status(SERVER_ERROR).send({ message: 'Internal Server Error' });
@@ -45,13 +45,18 @@ export const deleteCardById = async (req: IRequest, res: Response) => {
         .status(DATA_NOT_FOUND)
         .send({ message: 'Data does not exist' });
     }
-    if (cardToDelete && String(cardToDelete.owner) === ownerId) {
+    if (String(cardToDelete.owner) === ownerId) {
       return res.status(REQUEST_SUCCESS).send(cardToDelete);
     }
     return res
       .status(FORBIDDEN_ACTION)
       .send({ message: 'You are not an owner' });
   } catch (error) {
+    if (error instanceof mongoose.Error.CastError) {
+      return res
+        .status(VALIDATION_ERROR)
+        .send({ message: 'Data is not correct' });
+    }
     return res.status(SERVER_ERROR).send({ message: 'Internal Server Error' });
   }
 };
@@ -63,6 +68,7 @@ export const likeCard = (req: IRequest, res: Response) => {
     { $addToSet: { likes: ownerId } },
     { new: true },
   )
+    .populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
         return res
@@ -83,13 +89,14 @@ export const likeCard = (req: IRequest, res: Response) => {
     });
 };
 
-export const deleteLikeCard = (req: IRequest, res: Response) => {
+export const dislikeCard = (req: IRequest, res: Response) => {
   const ownerId = req.user?._id;
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: ownerId } },
     { new: true },
   )
+    .populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
         return res
