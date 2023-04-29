@@ -10,9 +10,12 @@ import {
   VALIDATION_ERROR,
 } from '../types/status';
 
-export const getUsers = (req: Request, res: Response) => User.find({})
-  .then((users) => res.send({ data: users }))
-  .catch(() => res.status(SERVER_ERROR).send({ message: 'Internal Server Error' }));
+export const getUsers = (req: Request, res: Response) =>
+  User.find({})
+    .then((users) => res.send({ data: users }))
+    .catch(() =>
+      res.status(SERVER_ERROR).send({ message: 'Internal Server Error' })
+    );
 
 export const findUserById = (req: Request, res: Response) => {
   User.findById(req.params._id)
@@ -41,7 +44,7 @@ export const createUser = (req: Request, res: Response) => {
   User.create({ name, about, avatar })
     .then((user) => res.status(CREATED_SUCCESS).send({ data: user }))
     .catch((error) => {
-      if (error instanceof mongoose.Error && error.name === 'ValidationError') {
+      if (error instanceof mongoose.Error.ValidationError) {
         return res
           .status(VALIDATION_ERROR)
           .send({ message: 'Data is not correct' });
@@ -58,7 +61,7 @@ export const updateUser = (req: IRequest, res: Response) => {
   User.findByIdAndUpdate(
     currentUser,
     { name, about },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   )
     .then((user) => {
       if (!user) {
@@ -86,7 +89,7 @@ export const updateAvatar = (req: IRequest, res: Response) => {
   User.findByIdAndUpdate(
     currentUser,
     { avatar },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   )
     .then((user) => {
       if (!user) {

@@ -13,7 +13,7 @@ import {
 
 export const getCards = async (req: Request, res: Response) => {
   try {
-    const cards = await Card.find({}).populate('owner');
+    const cards = await Card.find({}).populate(['owner', 'likes']);
     return res.status(REQUEST_SUCCESS).send(cards);
   } catch (error) {
     return res.status(SERVER_ERROR).send({ message: 'Internal Server Error' });
@@ -66,7 +66,7 @@ export const likeCard = (req: IRequest, res: Response) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: ownerId } },
-    { new: true },
+    { new: true }
   )
     .populate(['owner', 'likes'])
     .then((card) => {
@@ -94,7 +94,7 @@ export const dislikeCard = (req: IRequest, res: Response) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: ownerId } },
-    { new: true },
+    { new: true }
   )
     .populate(['owner', 'likes'])
     .then((card) => {
