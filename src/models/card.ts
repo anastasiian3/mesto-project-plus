@@ -1,4 +1,5 @@
 import { Date, model, ObjectId, Schema } from 'mongoose';
+import { RegExpr } from 'validator/validator';
 
 export interface ICard {
   name: string;
@@ -18,6 +19,10 @@ const cardSchema = new Schema<ICard>({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator: (link: string) => RegExpr.test(link),
+      message: 'Incorrect link',
+    },
   },
   owner: {
     type: Schema.Types.ObjectId,
