@@ -32,6 +32,8 @@
       "error",
       { "multiline": true, "minProperties": 7 }
     ],
-    "implicit-arrow-linebreak": ["error", "beside"]
+    "implicit-arrow-linebreak": ["error", "beside"],
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+    "no-unused-vars": "off"
   }
 }
