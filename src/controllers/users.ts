@@ -59,10 +59,10 @@ export const findCurrentUserById = (
 
 export const createUser = (req: Request, res: Response, next: NextFunction) => {
   const { name, about, avatar, email, password } = req.body;
-  bcrypt
+  return bcrypt
     .hash(password, 10)
     .then((hash: number | string) => User.create({ email, password: hash, name, about, avatar }))
-    .then((user) => res.status(CREATED_SUCCESS).send({ data: user }))
+    .then((user) => res.status(CREATED_SUCCESS).send({ id: user._id, email: user.email }))
     .catch((error) => {
       if (error.code === 11000) {
         throw new ConfictError('The email is already used');

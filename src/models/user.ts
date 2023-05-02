@@ -33,12 +33,20 @@ const userSchema = new Schema<IUser, UserModel>({
   },
   avatar: {
     type: String,
-    validate: {
-      validator: (link: string) => RegExpr.test(link),
-      message: 'Incorrect link',
-    },
     default:
       'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    // validate: {
+    //   validator: (link: string) => RegExpr.test(link),
+    //   message: 'Link is incorrect',
+    // },
+    // validate: (link: string) => validator.isURL(link),
+    validate: {
+      validator: (link: string) => {
+        /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/.test(
+          link,
+        );
+      },
+    },
   },
   email: {
     type: String,
