@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import ValidationError from '../errors/validation-error';
 import NotFoundError from '../errors/not-found-error';
 import ConfictError from '../errors/conflict-error';
-import User from '../models/user';
+import Users from '../models/users';
 import { IRequest } from '../types/type';
 import {
   CREATED_SUCCESS,
@@ -13,7 +13,7 @@ import {
   UNAUTHORIZED,
 } from '../types/status';
 
-export const getUsers = (req: Request, res: Response, next: NextFunction) => User.find({})
+export const getUsers = (req: Request, res: Response, next: NextFunction) => Users.find({})
   .then((users) => res.send({ data: users }))
   .catch(next);
 
@@ -22,10 +22,10 @@ export const findUserById = (
   res: Response,
   next: NextFunction,
 ) => {
-  User.findById(req.params._id)
+  Users.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('User is not found');
+        throw new NotFoundError('This user is not found');
       }
       return res.send({ data: user });
     })
@@ -42,12 +42,12 @@ export const findCurrentUserById = (
   res: Response,
   next: NextFunction,
 ) => {
-  User.findById(req.user?._id)
+  Users.findById(req.user!._id)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('User is not found');
+        throw next(new NotFoundError('Current user is not found'));
       }
-      return res.send({ data: user });
+      return res.status(200).send({ data: user });
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
@@ -61,7 +61,7 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
   const { name, about, avatar, email, password } = req.body;
   return bcrypt
     .hash(password, 10)
-    .then((hash: number | string) => User.create({ email, password: hash, name, about, avatar }))
+    .then((hash: number | string) => Users.create({ email, password: hash, name, about, avatar }))
     .then((user) => res.status(CREATED_SUCCESS).send({ id: user._id, email: user.email }))
     .catch((error) => {
       if (error.code === 11000) {
@@ -81,7 +81,7 @@ export const updateUser = (
 ) => {
   const { name, about } = req.body;
   const currentUser = req.user?._id;
-  User.findByIdAndUpdate(
+  Users.findByIdAndUpdate(
     currentUser,
     { name, about },
     { new: true, runValidators: true },
@@ -107,7 +107,7 @@ export const updateAvatar = (
 ) => {
   const { avatar } = req.body;
   const currentUser = req.user?._id;
-  User.findByIdAndUpdate(
+  Users.findByIdAndUpdate(
     currentUser,
     { avatar },
     { new: true, runValidators: true },
@@ -128,7 +128,7 @@ export const updateAvatar = (
 
 export const login = (req: IRequest, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
+  return Users.findUserByCredentials(email, password)
     .then((user) => {
       res.send({ token: jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' }) });
     })

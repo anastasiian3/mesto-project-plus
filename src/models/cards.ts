@@ -29,12 +29,12 @@ const cardSchema = new Schema<ICard>({
   },
   owner: {
     type: Schema.Types.ObjectId,
-    ref: 'user',
+    ref: 'User',
     required: true,
   },
   likes: [
     {
-      type: [{ type: Schema.Types.ObjectId, ref: 'user' }],
+      type: [{ type: Schema.Types.ObjectId, ref: 'User' }],
       default: [],
     },
   ],

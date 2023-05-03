@@ -40,3 +40,9 @@ export const validateUpdateAvatar = celebrate({
   body: Joi.object().keys({ avatar: Joi.string().pattern(RegExpr) }),
   // eslint-disable-next-line object-curly-newline
 });
+
+// eslint-disable-next-line object-curly-newline
+export const validateCardId = celebrate({
+  params: Joi.object().keys({ cardId: Joi.string().length(24).hex() }),
+  // eslint-disable-next-line object-curly-newline
+});

@@ -5,13 +5,15 @@ import ForbiddenError from '../errors/forbidden';
 import { IRequest } from '../types/type';
 import { CREATED_SUCCESS, REQUEST_SUCCESS } from '../types/status';
 import ValidationError from '../errors/validation-error';
-import Card from '../models/card';
+import Cards from '../models/cards';
 
 export const getCards = (req: Request, res: Response, next: NextFunction) => {
-  Card.find({})
+  Cards.find({})
     .populate(['owner', 'likes'])
     .then((cards) => res.status(REQUEST_SUCCESS).send(cards))
-    .catch(next);
+    .catch((err) => {
+      next(err);
+    });
 };
 
 export const createCard = (
@@ -21,7 +23,7 @@ export const createCard = (
 ) => {
   const { name, link } = req.body;
   const ownerId = req.user?._id;
-  Card.create({ name, link, owner: ownerId })
+  Cards.create({ name, link, owner: ownerId })
     .then((card) => res.status(CREATED_SUCCESS).send(card))
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
@@ -37,7 +39,7 @@ export const deleteCardById = (
   next: NextFunction,
 ) => {
   const ownerId = req.user!._id;
-  Card.findById(req.params.cardId)
+  Cards.findById(req.params.cardId)
     .then((cardToDelete) => {
       if (!cardToDelete) {
         throw new NotFoundError('Data does not exist');
@@ -57,10 +59,9 @@ export const deleteCardById = (
 };
 
 export const likeCard = (req: IRequest, res: Response, next: NextFunction) => {
-  const ownerId = req.user?._id;
-  Card.findByIdAndUpdate(
+  Cards.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: ownerId } },
+    { $addToSet: { likes: req.user?._id } },
     { new: true },
   )
     .populate(['owner', 'likes'])
@@ -83,10 +84,9 @@ export const dislikeCard = (
   res: Response,
   next: NextFunction,
 ) => {
-  const ownerId = req.user?._id;
-  Card.findByIdAndUpdate(
+  Cards.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: ownerId } },
+    { $pull: { likes: req.user?._id } },
     { new: true },
   )
     .populate(['owner', 'likes'])
