@@ -12,8 +12,8 @@ import { createUser, login } from './controllers/users';
 const { PORT = 3000 } = process.env;
 const app = express();
 
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
@@ -31,7 +31,10 @@ app.use(errors());
 app.use((err: IError, req: Request, res: Response, next: NextFunction) => {
   const { statusCode = SERVER_ERROR, message } = err;
 
-  res.status(statusCode).send({ message: statusCode === SERVER_ERROR ? 'Internal Server Error' : message });
+  res.status(statusCode).send({
+    message:
+      statusCode === SERVER_ERROR ? 'Произошла ошибка на сервере' : message,
+  });
 });
 
 app.listen(PORT, () => {
