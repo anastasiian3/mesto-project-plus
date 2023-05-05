@@ -13,11 +13,12 @@ import {
   validateUpdateAvatar,
   validateUpdateUser,
   validateUser,
+  validateUserId,
 } from '../validator/validator';
 
 const router = Router();
 router.get('/me', findCurrentUserById);
-router.get('/:userId', findUserById);
+router.get('/:userId', validateUserId, findUserById);
 router.get('/', getUsers);
 router.patch('/me', validateUpdateUser, updateUser);
 router.patch('/me/avatar', validateUpdateAvatar, updateAvatar);

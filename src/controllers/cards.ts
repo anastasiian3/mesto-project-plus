@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import mongoose from 'mongoose';
 import { NextFunction, Request, Response } from 'express';
 import NotFoundError from '../errors/not-found-error';
@@ -27,7 +28,7 @@ export const createCard = (
     .then((card) => res.status(CREATED_SUCCESS).send(card))
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
-        throw new ValidationError('Data is incorrect');
+        return next(new ValidationError('Data is incorrect'));
       }
       next(error);
     });
@@ -42,17 +43,19 @@ export const deleteCardById = (
   Cards.findById(req.params.cardId)
     .then((cardToDelete) => {
       if (!cardToDelete) {
-        throw new NotFoundError('Data does not exist');
+        return next(new NotFoundError('Data does not exist'));
       }
       if (String(cardToDelete.owner) === ownerId) {
-        cardToDelete.remove();
-        return res.status(REQUEST_SUCCESS).send(cardToDelete);
+        cardToDelete
+          .remove()
+          .then(() => res.status(REQUEST_SUCCESS).send(cardToDelete))
+          .catch((err) => next(err));
       }
-      throw new ForbiddenError('You are not an owner');
+      return next(new ForbiddenError('You are not an owner'));
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        throw new ValidationError('Data is incorrect');
+        return next(new ValidationError('Data is incorrect'));
       }
       next(error);
     });
@@ -67,13 +70,13 @@ export const likeCard = (req: IRequest, res: Response, next: NextFunction) => {
     .populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
-        throw new NotFoundError('Card does not exist');
+        return next(new NotFoundError('Card does not exist'));
       }
       return res.status(REQUEST_SUCCESS).send({ data: card });
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        throw new ValidationError('Data is incorrect');
+        return next(new ValidationError('Data is incorrect'));
       }
       next(error);
     });
@@ -86,19 +89,19 @@ export const dislikeCard = (
 ) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: req.user?._id } },
+    { $pull: { likes: [req.user?._id] } },
     { new: true },
   )
     .populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
-        throw new NotFoundError('Card does not exist');
+        return next(new NotFoundError('Card does not exist'));
       }
       return res.status(REQUEST_SUCCESS).send({ data: card });
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        throw new ValidationError('Data is incorrect');
+        return next(new ValidationError('Data is incorrect'));
       }
       next(error);
     });

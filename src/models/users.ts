@@ -1,6 +1,7 @@
 import { model, Model, Schema, Document } from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
+import UnauthorizedError from '../errors/unauthorized-error';
 
 export interface IUser {
   name: string;
@@ -65,11 +66,15 @@ userSchema.static(
       .select('+password')
       .then((user) => {
         if (!user) {
-          return Promise.reject(new Error('Incorrect email or password'));
+          return Promise.reject(
+            new UnauthorizedError('Incorrect email or password'),
+          );
         }
         return bcrypt.compare(password, user.password).then((matched) => {
           if (!matched) {
-            return Promise.reject(new Error('Incorrect email or password'));
+            return Promise.reject(
+              new UnauthorizedError('Incorrect email or password'),
+            );
           }
 
           return user;

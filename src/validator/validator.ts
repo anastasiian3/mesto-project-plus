@@ -10,39 +10,45 @@ export const validateUser = celebrate({
     about: Joi.string().min(2).max(200),
     avatar: Joi.string().pattern(RegExpr),
     email: Joi.string().email().required(),
-    password: Joi.string().required().min(6),
+    password: Joi.string().required(),
   }),
 });
 
 export const validateLogin = celebrate({
   body: Joi.object().keys({
     email: Joi.string().email().required(),
-    password: Joi.string().required().min(6),
+    password: Joi.string().required(),
   }),
 });
 
 export const validateCreateCard = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(1).required(),
+    name: Joi.string().min(2).required(),
     link: Joi.string().pattern(RegExpr).required(),
   }),
 });
 
 export const validateUpdateUser = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(200),
+    name: Joi.string().min(2).max(30).required(),
+    about: Joi.string().min(2).max(200).required(),
   }),
 });
 
 // eslint-disable-next-line object-curly-newline
 export const validateUpdateAvatar = celebrate({
-  body: Joi.object().keys({ avatar: Joi.string().pattern(RegExpr) }),
+  body: Joi.object().keys({ avatar: Joi.string().pattern(RegExpr).required() }),
   // eslint-disable-next-line object-curly-newline
 });
 
 // eslint-disable-next-line object-curly-newline
 export const validateCardId = celebrate({
   params: Joi.object().keys({ cardId: Joi.string().length(24).hex() }),
+  // eslint-disable-next-line object-curly-newline
+});
+
+// eslint-disable-next-line object-curly-newline
+export const validateUserId = celebrate({
+  params: Joi.object().keys({ userId: Joi.string().length(24).hex().required() }),
   // eslint-disable-next-line object-curly-newline
 });
