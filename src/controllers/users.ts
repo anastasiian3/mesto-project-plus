@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import { NextFunction, Request, Response } from 'express';
 import mongoose, { Error } from 'mongoose';
 import bcrypt from 'bcrypt';
@@ -7,11 +8,7 @@ import NotFoundError from '../errors/not-found-error';
 import ConfictError from '../errors/conflict-error';
 import Users from '../models/users';
 import { IRequest } from '../types/type';
-import {
-  CREATED_SUCCESS,
-  REQUEST_SUCCESS,
-  UNAUTHORIZED,
-} from '../types/status';
+import { CREATED_SUCCESS, REQUEST_SUCCESS } from '../types/status';
 
 export const getUsers = (req: Request, res: Response, next: NextFunction) => Users.find({})
   .then((users) => res.send({ data: users }))
@@ -25,13 +22,13 @@ export const findUserById = (
   Users.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('This user is not found');
+        return next(new NotFoundError('This user is not found'));
       }
       return res.send({ data: user });
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        throw new ValidationError('Data is incorrect');
+        return next(new ValidationError('Data is incorrect'));
       }
       next(error);
     });
@@ -45,13 +42,13 @@ export const findCurrentUserById = (
   Users.findById(req.user!._id)
     .then((user) => {
       if (!user) {
-        throw next(new NotFoundError('Current user is not found'));
+        return next(new NotFoundError('Current user is not found'));
       }
       return res.status(200).send({ data: user });
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        throw new ValidationError('Data is incorrect');
+        return next(new ValidationError('Data is incorrect'));
       }
       next(error);
     });
@@ -65,10 +62,10 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
     .then((user) => res.status(CREATED_SUCCESS).send({ id: user._id, email: user.email }))
     .catch((error) => {
       if (error.code === 11000) {
-        throw new ConfictError('The email is already used');
+        return next(new ConfictError('The email is already used'));
       }
       if (error instanceof mongoose.Error.ValidationError) {
-        throw new ValidationError('Data is incorrect');
+        return next(new ValidationError('Data is incorrect'));
       }
       next(error);
     });
@@ -88,13 +85,13 @@ export const updateUser = (
   )
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('User is not found');
+        return next(new NotFoundError('User is not found'));
       }
       return res.status(REQUEST_SUCCESS).send({ data: user });
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
-        throw new ValidationError('Data is incorrect');
+        return next(new ValidationError('Data is incorrect'));
       }
       next(error);
     });
@@ -114,13 +111,13 @@ export const updateAvatar = (
   )
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('User is not found');
+        return next(new NotFoundError('User is not found'));
       }
       return res.status(REQUEST_SUCCESS).send({ data: user });
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
-        throw new ValidationError('Data is incorrect');
+        return next(new ValidationError('Data is incorrect'));
       }
       next(error);
     });
@@ -132,7 +129,5 @@ export const login = (req: IRequest, res: Response, next: NextFunction) => {
     .then((user) => {
       res.send({ token: jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' }) });
     })
-    .catch((err) => {
-      res.status(UNAUTHORIZED).send({ message: err.message });
-    });
+    .catch(next);
 };

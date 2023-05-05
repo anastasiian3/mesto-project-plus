@@ -11,7 +11,7 @@ import { validateCardId, validateCreateCard } from '../validator/validator';
 
 const cardRouter = Router();
 cardRouter.get('/', getCards);
-cardRouter.delete('/:cardId', deleteCardById);
+cardRouter.delete('/:cardId', validateCardId, deleteCardById);
 cardRouter.post('/', validateCreateCard, createCard);
 cardRouter.put('/:cardId/likes', validateCardId, likeCard);
 cardRouter.delete('/:cardId/likes', validateCardId, dislikeCard);

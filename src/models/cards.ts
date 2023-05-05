@@ -1,11 +1,10 @@
 import { Date, model, ObjectId, Schema } from 'mongoose';
-import { RegExpr } from 'validator/validator';
 
 export interface ICard {
   name: string;
   link: string;
   owner: ObjectId;
-  likes: string[];
+  likes: ObjectId[];
   createdAt: Date;
 }
 
@@ -32,12 +31,11 @@ const cardSchema = new Schema<ICard>({
     ref: 'User',
     required: true,
   },
-  likes: [
-    {
-      type: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-      default: [],
-    },
-  ],
+  likes: {
+    type: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    default: [],
+  },
+
   createdAt: {
     type: Date,
     default: Date.now,
