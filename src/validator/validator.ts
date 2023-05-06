@@ -1,3 +1,4 @@
+/* eslint-disable object-curly-newline */
 import { celebrate, Joi } from 'celebrate';
 
 // eslint-disable-next-line operator-linebreak
@@ -23,7 +24,7 @@ export const validateLogin = celebrate({
 
 export const validateCreateCard = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).required(),
+    name: Joi.string().min(2).max(30).required(),
     link: Joi.string().pattern(RegExpr).required(),
   }),
 });
@@ -35,20 +36,16 @@ export const validateUpdateUser = celebrate({
   }),
 });
 
-// eslint-disable-next-line object-curly-newline
 export const validateUpdateAvatar = celebrate({
   body: Joi.object().keys({ avatar: Joi.string().pattern(RegExpr).required() }),
-  // eslint-disable-next-line object-curly-newline
 });
 
-// eslint-disable-next-line object-curly-newline
 export const validateCardId = celebrate({
   params: Joi.object().keys({ cardId: Joi.string().length(24).hex() }),
-  // eslint-disable-next-line object-curly-newline
 });
 
-// eslint-disable-next-line object-curly-newline
 export const validateUserId = celebrate({
-  params: Joi.object().keys({ userId: Joi.string().length(24).hex().required() }),
-  // eslint-disable-next-line object-curly-newline
+  params: Joi.object().keys({
+    userId: Joi.string().length(24).hex().required(),
+  }),
 });

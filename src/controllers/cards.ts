@@ -45,13 +45,13 @@ export const deleteCardById = (
       if (!cardToDelete) {
         return next(new NotFoundError('Data does not exist'));
       }
-      if (String(cardToDelete.owner) === ownerId) {
-        cardToDelete
-          .remove()
-          .then(() => res.status(REQUEST_SUCCESS).send(cardToDelete))
-          .catch((err) => next(err));
+      if (String(cardToDelete.owner) !== ownerId) {
+        return next(new ForbiddenError('You are not an owner'));
       }
-      return next(new ForbiddenError('You are not an owner'));
+      cardToDelete
+        .remove()
+        .then(() => res.status(REQUEST_SUCCESS).send(cardToDelete))
+        .catch((err) => next(err));
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
